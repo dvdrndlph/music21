@@ -2106,21 +2106,52 @@ def file2string(file_path):
     file.close()
     return string
 
-def getXml(abc_string):
-    global abc_header, abc_voice, abc_scoredef, abc_percmap # keep computed grammars
+def getXmlScores(abc_string, skip=None, max=None):
+    # Skip over skip number of tunes, then read at most max tunes.
+    global abc_header, abc_voice, abc_scoredef, abc_percmap 
+    try:
+        abc_header
+    except NameError:
+        abc_header, abc_voice, abc_scoredef, abc_percmap = abc_grammar()   
+
     global mxm
     try:
         mxm
     except NameError:
         mxm = MusicXml()
-    abc_header, abc_voice, abc_scoredef, abc_percmap = abc_grammar()   
-    score = mxm.parse(abc_string)
-    xml_str = fixDoctype(score)
-    return xml_str
+
+    xml_strings = []
+    abctext = expand_abc_include (abc_string)
+    fragments =  abctext.split ('X:')
+    preamble = fragments [0]    # tunes can be preceeded by formatting instructions
+    tunes = fragments[1:]
+    if not tunes and preamble:
+        tunes, preamble = ['1\n' + preamble], ''  # tune without X:
+    for i, tune in enumerate (tunes):
+        if skip is not None:
+            if i < skip:
+                continue
+            if max is not None and i >= skip + max:
+                break
+        tune = preamble + 'X:' + tune       # restore preamble before each tune
+        try:                                # convert string abctext -> file pad/fnmNum.xml
+            score = mxm.parse(tune)
+            xml_str = fixDoctype(score)
+            xml_strings.append(xml_str)
+        except ParseException:
+            pass         # output already printed
+        except Exception as err:
+            info ('an exception occurred.\n%s' % err)
+    return xml_strings
+
+def getXml(abc_string):
+    xml_score_strings = getXmlScores(abc_string=abc_string)
+    return xml_score_strings[0]
 
 def getXmlFromFile(file_path):
     abc_string = file2string(file2string=file_path)
-    return getXml(abc_string=abc_string)
+    return getXml(abc_string=abc_string, num=0, skip=1)
+
 
 #----------------
 # Main Program

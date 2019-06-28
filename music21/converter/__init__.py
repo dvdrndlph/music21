@@ -1017,8 +1017,6 @@ class Converter:
         #              humdrum worked differently.
 
 
-
-
 # ------------------------------------------------------------------------------
 # module level convenience methods
 
@@ -1440,10 +1438,6 @@ class Test(unittest.TestCase):
 
         # print(a.recurseRepr())
 
-
-
-        # print(a.recurseRepr())
-
         # get the third movement
 #         mxFile = corpus.getWork('opus18no1')[2]
 #         a = parse(mxFile)
@@ -1455,8 +1449,6 @@ class Test(unittest.TestCase):
 #         c = a.getElementsByClass(note.Note)
 #         # over 1000 notes
 #         self.assertEqual(len(c), 1289)
-
-
 
     def testConversionMXChords(self):
         from music21 import chord
@@ -1472,9 +1464,7 @@ class Test(unittest.TestCase):
                 # print(chords[i].pitches, len(chords[i].pitches))
                 self.assertEqual(knownSize[i], len(chords[i].pitches))
 
-
     def testConversionMXBeams(self):
-
         from music21.musicxml import testPrimitive
 
         mxString = testPrimitive.beams01
@@ -1487,7 +1477,6 @@ class Test(unittest.TestCase):
                 beams += n.beams.beamsList
         self.assertEqual(len(beams), 152)
 
-
     def testConversionMXTime(self):
 
         from music21.musicxml import testPrimitive
@@ -1496,14 +1485,12 @@ class Test(unittest.TestCase):
         a = parse(mxString)
         unused_part = a.parts[0]
 
-
         mxString = testPrimitive.timeSignatures11d
         a = parse(mxString)
         part = a.parts[0]
 
         notes = part.flat.notesAndRests
         self.assertEqual(len(notes), 11)
-
 
     def testConversionMXClefPrimitive(self):
         from music21 import clef
@@ -1515,9 +1502,7 @@ class Test(unittest.TestCase):
         clefs = part.flat.getElementsByClass(clef.Clef)
         self.assertEqual(len(clefs), 18)
 
-
     def testConversionMXClefTimeCorpus(self):
-
         from music21 import corpus, clef, meter
         a = corpus.parse('luca')
 
@@ -1539,7 +1524,6 @@ class Test(unittest.TestCase):
         # check time signature count
         ts = a.parts[1].flat.getElementsByClass(meter.TimeSignature)
         self.assertEqual(len(ts), 4)
-
 
     def testConversionMXArticulations(self):
         from music21 import note
@@ -1612,7 +1596,6 @@ class Test(unittest.TestCase):
 
 
     def testConversionMXTies(self):
-
         from music21.musicxml import testPrimitive
         from music21 import clef
 
@@ -1633,7 +1616,6 @@ class Test(unittest.TestCase):
         self.assertEqual(countTies, 57)
         self.assertEqual(countStartTies, 40)
 
-
     def testConversionMXInstrument(self):
         from music21 import corpus
         s = corpus.parse('schumann_clara/opus17', 3)
@@ -1647,7 +1629,6 @@ class Test(unittest.TestCase):
         is3 = s.parts[2].flat.getElementsByClass('Instrument')
         self.assertEqual(len(is3), 1)
         #self.assertIn('Piano', is1[0].classes)
-
 
     def testConversionMidiBasic(self):
         dirLib = common.getSourceFilePath() / 'midi' / 'testPrimitive'
@@ -1671,7 +1652,6 @@ class Test(unittest.TestCase):
         parseData(data)
         parse(data)
 
-
     def testConversionMidiNotes(self):
         from music21 import meter, key, chord, note
 
@@ -1681,7 +1661,6 @@ class Test(unittest.TestCase):
         s = parseFile(fp)
         # s.show()
         self.assertEqual(len(s.flat.getElementsByClass(note.Note)), 18)
-
 
         # has chords and notes
         fp = common.getSourceFilePath() / 'midi' / 'testPrimitive' / 'test05.mid'
@@ -1694,7 +1673,6 @@ class Test(unittest.TestCase):
 
         self.assertEqual(len(s.flat.getElementsByClass(meter.TimeSignature)), 0)
         self.assertEqual(len(s.flat.getElementsByClass(key.KeySignature)), 0)
-
 
         # this sample has eight note triplets
         fp = common.getSourceFilePath() / 'midi' / 'testPrimitive' / 'test06.mid'
@@ -1711,10 +1689,8 @@ class Test(unittest.TestCase):
                  0.5, 0.5, 0.5, 0.5, F(1, 3), F(1, 3), F(1, 3), 0.5, 0.5, 1.0]
         self.assertEqual(dList, match)
 
-
         self.assertEqual(len(s.flat.getElementsByClass('TimeSignature')), 1)
         self.assertEqual(len(s.flat.getElementsByClass('KeySignature')), 1)
-
 
         # this sample has sixteenth note triplets
         # TODO much work is still needed on getting timing right
@@ -1725,9 +1701,6 @@ class Test(unittest.TestCase):
         # s.show('t')
         self.assertEqual(len(s.flat.getElementsByClass('TimeSignature')), 1)
         self.assertEqual(len(s.flat.getElementsByClass('KeySignature')), 1)
-
-
-
 
         # this sample has dynamic changes in key signature
         fp = common.getSourceFilePath() / 'midi' / 'testPrimitive' / 'test08.mid'
@@ -1741,7 +1714,6 @@ class Test(unittest.TestCase):
         self.assertEqual(found[0].sharps, -3)
         self.assertEqual(found[1].sharps, 3)
         self.assertEqual(found[2].sharps, -1)
-
 
     def testConversionMXRepeats(self):
         from music21 import bar
@@ -1767,9 +1739,7 @@ class Test(unittest.TestCase):
 
         # s.show()
 
-
     def testConversionABCOpus(self):
-
         from music21.abcFormat import testFiles
         from music21 import corpus
 
@@ -1796,7 +1766,6 @@ class Test(unittest.TestCase):
 
         # s.show()
 
-
     def testConversionABCWorkFromOpus(self):
         # test giving a work number at loading
         from music21 import corpus
@@ -1818,14 +1787,13 @@ class Test(unittest.TestCase):
             print(s.metadata.title)
         s = parse(testFiles.keyAndOctaveChanger, viaXml=True)
         self.assertIsInstance(s, stream.Score)
-        s.show()
+        # s.show()
 
     def testConversionMusedata(self):
         fp = common.getSourceFilePath() /  'musedata' / 'testPrimitive' / 'test01'
         s = parse(fp)
         self.assertEqual(len(s.parts), 5)
         # s.show()
-
 
     def testMixedArchiveHandling(self):
         '''Test getting data out of musedata or musicxml zip files.
@@ -1853,7 +1821,6 @@ class Test(unittest.TestCase):
 #         # returns a list of strings
 #         self.assertEqual(af.getData(dataFormat='musedata')[0][:30],
 #                     '378\n1080  1\nBach Gesells\nchaft')
-
 
         #mdw = musedataModule.MuseDataWork()
         # can add a list of strings from getData
@@ -1908,7 +1875,6 @@ class Test(unittest.TestCase):
         for n in midistream.recurse(classFilter='Note'):
             self.assertTrue(numberTools.almostEquals(n.quarterLength % .5, 0.0))
 
-
     def testIncorrectNotCached(self):
         '''
         Here is a filename with an incorrect extension (.txt for .rnText).  Make sure that
@@ -1933,7 +1899,6 @@ class Test(unittest.TestCase):
 
         with self.assertRaises(FileNotFoundError):
             parse(fp)
-
 
 # ------------------------------------------------------------------------------
 # define presented order in documentation
