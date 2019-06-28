@@ -618,7 +618,24 @@ K:G
 V:1 treble
 V:1
 g^G_ag a=ffF|=F2^c2 FB =ca|]
+'''
 
+keyAndOctaveChanger = '''
+%abc-2.1
+X:12
+T:arpeggios_common_b_minor
+C:Beringer and Dunhill
+%%score { ( 1 ) | ( 2 ) }
+M:3/4
+K:Bmin
+V:1 treble
+V:2 bass octave=-1
+V:1
+L:1/16
+B,DFB dfbf dBFD:|B,4|:DFBd fbd'b fdBF:|D4|:FBdf bd'f'd' bfdB:|F4||
+V:2
+L:1/16
+B,DFB [K: clef=treble octave=-1]dfbf [K:Am clef=bass octave=-1]dBFD:|B,4|:DFBd [K:F clef=treble octave=-1]fbd'b [K:Bm clef=bass octave=-1]fdBF:|D4|:FBdf [K: clef=treble octave=-1]bd'f'd' bfdB:|[K: clef=bass octave=-1]F4||
 '''
 
 

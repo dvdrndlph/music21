@@ -457,7 +457,6 @@ class ConverterLilypond(SubConverter):
         launchKey = environLocal.formatToKey(outFormat)
         self.launch(returnedFilePath, fmt=outFormat, app=app, launchKey=launchKey)
 
-
 class ConverterBraille(SubConverter):
     registerFormats = ('braille',)
     registerOutputExtensions = ('txt',)
@@ -494,7 +493,6 @@ class ConverterVexflow(SubConverter):
         dataStr = vexflow.fromObject(obj, mode='html', local=local)
         fp = self.writeDataStream(fp, dataStr)
         return fp
-
 
 class ConverterText(SubConverter):
     '''
@@ -589,6 +587,7 @@ class ConverterScala(SubConverter):
     registerOutputExtensions = ('scl',)
 
 # ------------------------------------------------------------------------------
+
 class ConverterHumdrum(SubConverter):
     '''Simple class wrapper for parsing Humdrum data provided in a file or in a string.
     '''
@@ -694,7 +693,6 @@ class ConverterTinyNotation(SubConverter):
                 'in the stream')
         from music21 import tinyNotation
         self.stream = tinyNotation.Converter(tnStr, **self.keywords).parse().stream
-
 
 class ConverterNoteworthy(SubConverter):
     '''
@@ -951,8 +949,6 @@ class ConverterMusicXML(SubConverter):
                 fmt = 'pdf'
         self.launch(returnedFilePath, fmt=fmt, app=app)
 
-
-
 # ------------------------------------------------------------------------------
 class ConverterMidi(SubConverter):
     '''
@@ -991,8 +987,6 @@ class ConverterMidi(SubConverter):
         mf.close()
         return fp
 
-
-
 # ------------------------------------------------------------------------------
 class ConverterABC(SubConverter):
     '''
@@ -1001,7 +995,7 @@ class ConverterABC(SubConverter):
     Input only
     '''
     registerFormats = ('abc',)
-    registerInputExtensions = ('abc',)
+    registerInputExtensions = ('abc','abcd')
 
     def parseData(self, strData, number=None):
         '''
@@ -1051,7 +1045,6 @@ class ConverterABC(SubConverter):
         else:
             abcFormat.translate.abcToStreamScore(abcHandler, self.stream)
 
-
 class ConverterRomanText(SubConverter):
     '''Simple class wrapper for parsing roman text harmonic definitions.
     '''
@@ -1080,7 +1073,6 @@ class ConverterRomanText(SubConverter):
         rtf.close()
         romanTextTranslate.romanTextToStreamScore(rtHandler, self.stream)
 
-
 class ConverterClercqTemperley(SubConverter):
     '''
     Wrapper for parsing harmonic definitions in Trevor de Clercq and
@@ -1089,7 +1081,6 @@ class ConverterClercqTemperley(SubConverter):
     registerFormats = ('cttxt', 'har')
     registerInputExtensions = ('cttxt', 'har')
 
-
     def parseData(self, strData, number=None):
         from music21.romanText import clercqTemperley
         ctSong = clercqTemperley.CTSong(strData)
@@ -1097,7 +1088,6 @@ class ConverterClercqTemperley(SubConverter):
 
     def parseFile(self, fp, number=None):
         self.parseData(fp)
-
 
 class ConverterCapella(SubConverter):
     '''
@@ -1126,7 +1116,6 @@ class ConverterCapella(SubConverter):
         from music21.capella import fromCapellaXML
         ci = fromCapellaXML.CapellaImporter()
         self.stream = ci.scoreFromFile(fp)
-
 
 # ------------------------------------------------------------------------------
 class ConverterMuseData(SubConverter):
@@ -1192,7 +1181,6 @@ class ConverterMuseData(SubConverter):
         # environLocal.printDebug(['ConverterMuseData: mdw file count', len(mdw.files)])
 
         musedataTranslate.museDataWorkToStreamScore(mdw, self.stream)
-
 
 class ConverterMEI(SubConverter):
     '''
@@ -1266,7 +1254,6 @@ class ConverterMEI(SubConverter):
 
 #     def writeDataStream(self, fp, dataStr):
 #         raise NotImplementedError('MEI export is not yet implemented.')
-
 
 class Test(unittest.TestCase):
 

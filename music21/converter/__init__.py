@@ -441,7 +441,6 @@ class Converter:
         self.subConverter = None
         self._thawedStream = None  # a stream object unthawed
 
-
     def _getDownloadFp(self, directory, ext, url):
         if directory is None:
             raise ValueError
@@ -453,8 +452,8 @@ class Converter:
 
     # pylint: disable=redefined-builtin
     # noinspection PyShadowingBuiltins
-    def parseFileNoPickle(self, fp, number=None,
-                          format=None, forceSource=False, **keywords):  # @ReservedAssignment
+    def parseFileNoPickle(self, fp, number=None, format=None, forceSource=False,
+                          viaXml=False, **keywords):  # @ReservedAssignment
         '''
         Given a file path, parse and store a music21 Stream.
 
@@ -467,7 +466,22 @@ class Converter:
         # environLocal.printDebug(['attempting to parseFile', fp])
         if not fp.exists():
             raise ConverterFileException('no such file exists: %s' % fp)
+        
         useFormat = format
+        
+        if viaXml:
+            if not format or format != 'abc':
+                raise ConverterFileException('Only abc can be processed via XML: %s' % fp)
+            from music21.abc2xml import abc2xml
+            inferredFormat = self.getFormatFromFileExtension(fp)
+            if inferredFormat != 'abc':
+                raise ConverterFileException('File is not in abc format: %s' % fp)
+            dataStr = abc2xml.getXmlFromFile(file_path=fp)
+            useFormat = 'musicxml'
+            self.parseData(dataStr, number=None, format=useFormat, **keywords)
+            return
+            
+        # get from data in string if not specified
 
         if useFormat is None:
             useFormat = self.getFormatFromFileExtension(fp)
@@ -505,8 +519,8 @@ class Converter:
         return useFormat
 
     # noinspection PyShadowingBuiltins
-    def parseFile(self, fp, number=None,
-            format=None, forceSource=False, storePickle=True, **keywords):  # @ReservedAssignment
+    def parseFile(self, fp, number=None, format=None, forceSource=False,
+                  storePickle=True, viaXml=False, **keywords):  # @ReservedAssignment
         '''
         Given a file path, parse and store a music21 Stream.
 
@@ -534,14 +548,14 @@ class Converter:
             except freezeThaw.FreezeThawException:
                 environLocal.warn('Could not parse pickle, %s ...rewriting' % fpPickle)
                 os.remove(fpPickle)
-                self.parseFileNoPickle(fp, number, format, forceSource, **keywords)
+                self.parseFileNoPickle(fp, number, format, forceSource, viaXml=viaXml, **keywords)
 
             self.stream.filePath = fp
             self.stream.fileNumber = number
             self.stream.fileFormat = useFormat
         else:
             environLocal.printDebug('Loading original version')
-            self.parseFileNoPickle(fp, number, format, forceSource, **keywords)
+            self.parseFileNoPickle(fp, number, format, forceSource, viaXml=viaXml, **keywords)
             if writePickle is True and fpPickle is not None and storePickle is True:
                 # save the stream to disk...
                 environLocal.printDebug('Freezing Pickle')
@@ -557,13 +571,22 @@ class Converter:
                 self.stream.fileFormat = useFormat
 
 
-
     def parseData(self, dataStr, number=None,
-                  format=None, forceSource=False, **keywords):  # @ReservedAssignment
+                  format=None, viaXml=False, **keywords):  # @ReservedAssignment
         '''
         Given raw data, determine format and parse into a music21 Stream.
         '''
         useFormat = format
+        if viaXml:
+            from music21.abc2xml import abc2xml
+            dataStr = dataStr.lstrip()
+            if 'M:' not in dataStr or 'K:' not in dataStr:
+                raise ConverterException('Only abc files may be converted via xml.')
+            else:
+                # format is abc, so we can process it
+                dataStr = abc2xml.getXml(abc_string=dataStr)
+            useFormat = 'musicxml'
+            
         # get from data in string if not specified
         if useFormat is None:  # its a string
             dataStr = dataStr.lstrip()
@@ -1000,23 +1023,23 @@ class Converter:
 # module level convenience methods
 
 # pylint: disable=redefined-builtin
-def parseFile(fp, number=None, format=None, forceSource=False, **keywords):  # @ReservedAssignment
+def parseFile(fp, number=None, format=None, forceSource=False, viaXml=False, **keywords):  # @ReservedAssignment
     '''
     Given a file path, attempt to parse the file into a Stream.
     '''
     v = Converter()
     fp = common.cleanpath(fp, returnPathlib=True)
-    v.parseFile(fp, number=number, format=format, forceSource=forceSource, **keywords)
+    v.parseFile(fp, number=number, format=format, forceSource=forceSource, viaXml=viaXml, **keywords)
     return v.stream
 
 # pylint: disable=redefined-builtin
-def parseData(dataStr, number=None, format=None, **keywords):  # @ReservedAssignment
+def parseData(dataStr, number=None, format=None, viaXml=False, **keywords):  # @ReservedAssignment
     '''
     Given musical data represented within a Python string, attempt to parse the
     data into a Stream.
     '''
     v = Converter()
-    v.parseData(dataStr, number=number, format=format, **keywords)
+    v.parseData(dataStr, number=number, format=format, viaXml=viaXml, **keywords)
     return v.stream
 
 # pylint: disable=redefined-builtin
@@ -1030,7 +1053,7 @@ def parseURL(url, number=None, format=None, forceSource=False, **keywords):  # @
     v.parseURL(url, format=format, **keywords)
     return v.stream
 
-def parse(value, *args, **keywords):
+def parse(value, viaXml=False, *args, **keywords):
     r'''
     Given a file path, encoded data in a Python string, or a URL, attempt to
     parse the item into a Stream.  Note: URL downloading will not happen
@@ -1101,7 +1124,6 @@ def parse(value, *args, **keywords):
             valueStr = str(value.sourcePath)
         else:
             valueStr = str(common.getCorpusFilePath() / value.sourcePath)
-
     else:
         valueStr = value
 
@@ -1120,10 +1142,10 @@ def parse(value, *args, **keywords):
     elif common.isListLike(value) or args:  # tiny notation list # TODO: Remove.
         if args:  # add additional args to a list
             value = [value] + list(args)
-        return parseData(value, number=number, **keywords)
+        return parseData(value, viaXml=viaXml, number=number, **keywords)
     # a midi string, must come before os.path.exists test
     elif not isinstance(value, bytes) and valueStr.startswith('MThd'):
-        return parseData(value, number=number, format=m21Format, **keywords)
+        return parseData(value, number=number, format=m21Format, viaXml=viaXml, **keywords)
     elif not isinstance(value, bytes) and os.path.exists(valueStr):
         return parseFile(valueStr, number=number, format=m21Format,
                          forceSource=forceSource, **keywords)
@@ -1140,7 +1162,7 @@ def parse(value, *args, **keywords):
     elif isinstance(value, pathlib.Path):
         raise FileNotFoundError('Cannot find file in {:s}'.format(str(value)))
     else:
-        return parseData(value, number=number, format=m21Format, **keywords)
+        return parseData(value, viaXml=viaXml, number=number, format=m21Format, **keywords)
 
 
 
@@ -1746,7 +1768,6 @@ class Test(unittest.TestCase):
         # s.show()
 
 
-
     def testConversionABCOpus(self):
 
         from music21.abcFormat import testFiles
@@ -1787,14 +1808,23 @@ class Test(unittest.TestCase):
                 '<music21.beam.Beams <music21.beam.Beam 1/start>/<music21.beam.Beam 2/start>>')
         # s.show()
 
-
+    def testConversionAbcViaXml(self):
+        # test giving a work number at loading
+        from music21 import corpus
+        from music21.abcFormat import testFiles
+        for i, tf in enumerate(testFiles.ALL):
+            s = parse(tf, viaXml=True)
+            self.assertIsInstance(s, stream.Score)
+            print(s.metadata.title)
+        s = parse(testFiles.keyAndOctaveChanger, viaXml=True)
+        self.assertIsInstance(s, stream.Score)
+        s.show()
 
     def testConversionMusedata(self):
         fp = common.getSourceFilePath() /  'musedata' / 'testPrimitive' / 'test01'
         s = parse(fp)
         self.assertEqual(len(s.parts), 5)
         # s.show()
-
 
 
     def testMixedArchiveHandling(self):

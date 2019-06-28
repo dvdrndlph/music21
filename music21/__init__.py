@@ -89,6 +89,7 @@ __all__ = [
 
     # sub folders
     'abcFormat',
+    'abc2xml',
     'alpha',
     'analysis',
     'audioSearch',
@@ -117,6 +118,7 @@ __all__ = [
     'test',
     'tree',
     'vexflow',
+    'xml2abc',
 
     # individual modules
     # KEEP ALPHABETICAL unless necessary for load reasons, if so

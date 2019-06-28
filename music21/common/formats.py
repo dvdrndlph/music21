@@ -106,6 +106,8 @@ def findFormat(fmt):
     ('midi', '.mid')
     >>> common.findFormat('abc')
     ('abc', '.abc')
+    >>> common.findFormat('abcd')
+    ('abc', '.abcd')
     >>> common.findFormat('scl')
     ('scala', '.scl')
     >>> common.findFormat('braille')
