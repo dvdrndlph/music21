@@ -472,7 +472,7 @@ class Converter:
         if viaXml:
             if not format or format != 'abc':
                 raise ConverterFileException('Only abc can be processed via XML: %s' % fp)
-            from music21.abc2xml import abc2xml
+            from music21.ext.abc2xml import abc2xml
             inferredFormat = self.getFormatFromFileExtension(fp)
             if inferredFormat != 'abc':
                 raise ConverterFileException('File is not in abc format: %s' % fp)
@@ -578,7 +578,7 @@ class Converter:
         '''
         useFormat = format
         if viaXml:
-            from music21.abc2xml import abc2xml
+            from music21.ext.abc2xml import abc2xml
             dataStr = dataStr.lstrip()
             if 'M:' not in dataStr or 'K:' not in dataStr:
                 raise ConverterException('Only abc files may be converted via xml.')
